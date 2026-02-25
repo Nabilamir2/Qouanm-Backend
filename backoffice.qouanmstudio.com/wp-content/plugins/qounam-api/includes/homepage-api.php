@@ -31,7 +31,7 @@ function qounam_get_homepage() {
     }
 
     // Get the homepage fields group
-    $homepage = get_field('homepage_fields', 69);
+    $homepage = get_field('homepage_fields', 7);
     
     if (!$homepage) {
         return new WP_REST_Response(array(
