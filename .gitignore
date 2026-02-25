@@ -1,54 +1,43 @@
-# Wordpress - ignore core, configuration, examples, uploads and logs.
-# https://github.com/github/gitignore/blob/main/WordPress.gitignore
-.user.ini
-wp-content/object-cache.php
-### WordPress template
+### WordPress inside backoffice.qounamstudio.com
 
-# ignore everything in the "wp-content" directory, except:
-# "mu-plugins", "plugins", "themes" directory
-/wp-content/*
-!wp-content/mu-plugins.hold/
-!wp-content/plugins/
-!wp-content/themes/
-!wp-content/uploads/
-!wp-content/languages/
-!/wp-content/updraft/
+# Ignore WordPress core
+/backoffice.qounamstudio.com/wp-admin/
+/backoffice.qounamstudio.com/wp-includes/
 
-/wp-content/updraft/*
-!/wp-content/updraft/*.gz
-/wp-content/uploads/
+# Ignore everything in wp-content except your custom code
+/backoffice.qounamstudio.com/wp-content/*
+!/backoffice.qounamstudio.com/wp-content/plugins/
+!/backoffice.qounamstudio.com/wp-content/themes/
+!/backoffice.qounamstudio.com/wp-content/mu-plugins/
 
-# ignore these plugins
-/wp-content/plugins/hello.php
-/wp-content/plugins/all-in-one-wp-migration/
-/wp-content/plugins/all-in-one-wp-migration-unlimited-extension/
-/wp-content/plugins/akismet/
+# But ignore uploads (media)
+/backoffice.qounamstudio.com/wp-content/uploads/
 
-# ignore specific themes
-wp-content/themes/twenty*/
+# Ignore unwanted default plugins
+/backoffice.qounamstudio.com/wp-content/plugins/hello.php
+/backoffice.qounamstudio.com/wp-content/plugins/akismet/
 
-/wp-content/themes/doubleten/woocommerce.css
-/wp-content/themes/doubleten/woocommerce.css.map
-/wp-content/themes/doubleten/vendor/
+# Ignore default themes
+/backoffice.qounamstudio.com/wp-content/themes/twenty*/
 
-# ignore node dependency directories
+# Sensitive files
+/backoffice.qounamstudio.com/wp-config.php
+/backoffice.qounamstudio.com/.htaccess
+/backoffice.qounamstudio.com/.user.ini
+/backoffice.qounamstudio.com/.maintenance
+
+# Node
 node_modules/
 
-# ignore log files and databases
+# Logs & dumps
 *.log
 *.sql
 *.sqlite
-*.idea
-*.vscode
+
+# Editor
+.vscode/
+.idea/
+
+# Archives
 *.zip
 *.rar
-
-/local-xdebuginfo.php
-/wp-config.php
-/.htaccess
-/.htaccess.bk
-/wordfence-waf.php
-/.htaccess.bk
-/.user.ini
-/.maintenance
-/.wp-cli
