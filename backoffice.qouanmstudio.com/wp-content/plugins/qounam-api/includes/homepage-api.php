@@ -42,124 +42,88 @@ function qounam_get_homepage() {
 
     // Format the response
     $response = array(
-        'hero' => array(
-            'label' => $homepage['label'] ?? '',
+        'hero_section' => array(
             'title' => $homepage['title'] ?? '',
             'subtitle' => $homepage['subtitle'] ?? '',
+            'description' => $homepage['description'] ?? '',
             'image' => $homepage['image'] ?? '',
-            'video' => $homepage['video'] ?? ''
-        ),
-        'explore' => array(
-            'label' => $homepage['explore_label'] ?? '',
-            'title' => $homepage['explore_title'] ?? '',
-            'subtitle' => $homepage['explore_subtitle'] ?? '',
-            'programs' => !empty($homepage['programs']) ? 
-                array_map(function($program) {
-                    return array(
-                        'id' => $program->ID,
-                        'title' => $program->post_title,
-                        'slug' => $program->post_name,
-                        'thumbnail' => get_the_post_thumbnail_url($program->ID),
-                        'hover_thumbnail' => get_field('hover_thumbnail', $program->ID),
-                        'category' => get_terms(array(
-                            'taxonomy' => 'program-category',
-                            'hide_empty' => true,
-                            'object_ids' => $program->ID
-                        ))[0]->name,
-                        'days_per_week' => get_field('days_per_week', $program->ID),
-                        'duration_in_weeks' => get_field('duration_in_weeks', $program->ID),
-                        'start_from' => get_field('start_from', $program->ID),
-                        'price' => get_field('price', $program->ID),
-                        'sale_price' => get_field('sale_price', $program->ID),
-                        'image' => get_the_post_thumbnail_url($program->ID),
-                        'seats_available' => get_field('seats_available', $program->ID),
-                        'limited_offer' => get_field('limited_offer', $program->ID)
-                    );
-                }, $homepage['programs']) : []
-        ),
-        'overview' => array(
-            'title' => $homepage['overview_title'] ?? '',
-            'description' => $homepage['overview_description'] ?? '',
-            'first_small_image' => $homepage['first_small_image'] ?? '',
-            'second_small_image' => $homepage['second_small_image'] ?? '',
-            'red_line_text' => !empty($homepage['red_line_text']) ? 
+            'listOfFeatures' => !empty($homepage['features']) ? 
                 array_map(function($text) {
                     return array(
-                        'word' => $text['word'] ?? ''
+                        $text['title'] ?? ''
                     );
-                }, $homepage['red_line_text']) : [],
+                }, $homepage['features']) : [],
         ),
-        'discover' => array(
-            'label' => $homepage['overview_label'] ?? '',
-            'second_title' => $homepage['overview_second_title'] ?? '',
-            'second_description' => $homepage['overview_second_description'] ?? '',
-            'pages' => !empty($homepage['overview_pages']) ? 
-                array_map(function($page) {
+        'about_section' => array(
+            'title' => $homepage['about_title'] ?? '',
+            'subtitle' => $homepage['about_subtitle'] ?? '',
+            'image' => $homepage['about_image'] ?? '',
+        ),
+        'solutions_section' => array(
+            'title' => $homepage['solutions_title'] ?? '',
+            'subtitle' => $homepage['solutions_subtitle'] ?? '',
+            'solutions' => !empty($homepage['solutions']) ? 
+                array_map(function($text) {
                     return array(
-                        'id' => $page->ID,
-                        'title' => $page->post_title,
-                        'slug' => $page->post_name,
-                        'excerpt' => get_the_excerpt($page->ID),
-                        'image' => get_the_post_thumbnail_url($page->ID)
+                        'title' => $text['title'] ?? '',
+                        'description' => $text['subtitle'] ?? '',
+                        'icon' => $text['icon'] ?? ''
                     );
-                }, $homepage['overview_pages']) : []
+                }, $homepage['solutions']) : [],
         ),
-        'facilities' => array(
-            'label' => $homepage['facilities_label'] ?? '',
-            'title' => $homepage['facilities_title'] ?? '',
-            'facilities' => array(
-                array(
-                    'title' => $homepage['facility_title_1'] ?? '',
-                    'description' => $homepage['facility_description_1'] ?? ''
-                ),
-                array(
-                    'title' => $homepage['facility_title_2'] ?? '',
-                    'description' => $homepage['facility_description_2'] ?? ''
-                ),
-                array(
-                    'title' => $homepage['facility_title_3'] ?? '',
-                    'description' => $homepage['facility_description_3'] ?? ''
-                )
-            ),
-            'small_image' => $homepage['facilities_small_image'] ?? '',
-            'large_image' => $homepage['facilities_large_image'] ?? ''
-        ),
-        'news' => array(
-            'label' => $homepage['news_label'] ?? '',
-            'title' => $homepage['news_title'] ?? '',
-            'posts' => !empty($homepage['news']) ? 
-                array_map(function($post) {
+        'services_section' => array(
+            'title' => $homepage['services_title'] ?? '',
+            'subtitle' => $homepage['services_subtitle'] ?? '',
+            'services' => !empty($homepage['services']) ? 
+                array_map(function($service) {
                     return array(
-                        'id' => $post->ID,
-                        'title' => $post->post_title,
-                        'excerpt' => get_the_excerpt($post->ID),
-                        'slug' => $post->post_name,
-                        'date' => get_the_date('', $post->ID),
-                        'image' => get_the_post_thumbnail_url($post->ID, 'large')
+                        'title' => $service['title'],
+                        'description' => $service['description'],
+                        'gallery' => array_map(function($image_url) {
+                            return array(
+                                $image_url,
+                            );
+                        }, $service['gallery']),
+                        'statistics' => array_map(function($statistics) {
+                            return array(
+                                'title' => $statistics['title'] ?? '',
+                                'subtitle' => $statistics['subtitle'] ?? ''
+                            );
+                        }, $service['statistics']),
                     );
-                }, $homepage['news']) : []
+                }, $homepage['services']) : []
         ),
         'partners' => array(
-            'label' => $homepage['partners_label'] ?? '',
-            'title' => $homepage['partners_title'] ?? '',
-            'logos' => !empty($homepage['partners']) ? 
-                array_map(function($partner) {
-                    return array(
-                        'image' => $partner['image'] ?? ''
-                    );
-                }, $homepage['partners']) : []
+                'logos' => array_map(function($logo) {
+                            return array(
+                                $logo['image'],
+                            );
+                        }, $homepage['logos']),
         ),
-        'accreditation' => array(
-            'label' => $homepage['accreditation_label'] ?? '',
-            'title' => $homepage['accreditation_title'] ?? '',
-            'accreditations' => !empty($homepage['accreditations']) ? 
-                array_map(function($logo) {
+        'ceo_section' => array(
+            'image' => $homepage['ceo_image'] ?? '',
+            'title' => $homepage['ceo_title'] ?? '',
+            'description' => $homepage['ceo_description'] ?? '',
+            'signature' => $homepage['ceo_signature'] ?? '',
+            'position' => $homepage['position'] ?? ''
+        ),
+        'projects_section' => array(
+            'title' => $homepage['projects_title'] ?? '',
+            'subtitle' => $homepage['projects_subtitle'] ?? '',
+            'projects' => !empty($homepage['projects']) ? 
+                array_map(function($project) {
+                    $project_id = $project['project'];
                     return array(
-                        'title' => $logo['title'] ?? '',
-                        'subtitle' => $logo['subtitle'] ?? '',
-                        'icon' => $logo['icon'] ?? ''
+                        'image' => $project['image'] ?? '',
+                        'logo' => get_the_post_thumbnail_url($project_id) ?? '',
+                        'title' => get_the_title($project_id) ?? '',
+                        'excerpt' => get_the_excerpt($project_id) ?? '',
+                        'rooms_design' => get_field('rooms_design',$project_id) ?? '',
+                        'furniture_units' => get_field('furniture_units',$project_id) ?? '',
+                        'weeks' => get_field('weeks',$project_id) ?? '',
+                        'slug' => get_post_field('post_name', $project_id) ?? '',
                     );
-                }, $homepage['accreditations']) : []
+                }, $homepage['projects']) : []
         )
 
     );
