@@ -37,8 +37,8 @@ function qounam_get_faqs() {
         return new WP_REST_Response(array(
             'success' => true,
             'data' => array(
-                'red_label_text' => '',
                 'title' => '',
+                'subtitle' => '',
                 'image' => '',
                 'faqs' => array()
             )
