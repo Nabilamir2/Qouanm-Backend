@@ -32,6 +32,7 @@ function qounam_get_homepage() {
 
     // Get the homepage fields group
     $homepage = get_field('homepage_fields', 7);
+    $reviews  = get_field('success_stories', 'option');
     
     if (!$homepage) {
         return new WP_REST_Response(array(
@@ -124,7 +125,48 @@ function qounam_get_homepage() {
                         'slug' => get_post_field('post_name', $project_id) ?? '',
                     );
                 }, $homepage['projects']) : []
-        )
+        ),
+        'our_process_section' => array(
+            'title' => $homepage['process_title'] ?? '',
+            'subtitle' => $homepage['process_subtitle'] ?? '',
+            'steps' => !empty($homepage['steps']) ? 
+                array_map(function($step, $i) {
+                    return array(
+                        'number' => $i + 1,
+                        'title' => $step['title'] ?? '',
+                        'description' => $step['description'] ?? ''
+                    );
+                }, $homepage['steps']) : []
+        ),
+        'reviews_section' => array(
+            'title' => $reviews['title'] ?? '',
+            'subtitle' => $reviews['subtitle'] ?? '',
+            'image' => $reviews['image'] ?? '',
+            'reviews' => !empty($reviews['stories']) ? 
+                array_map(function($single_review, $i) {
+                    return array(
+                        'id' => $i + 1,
+                        'image' => $single_review['image'] ?? '',
+                        'name' => $single_review['name'] ?? '',
+                        'JobDescription' => $single_review['position'] ?? '',
+                        'comment' => $single_review['text'] ?? ''
+                    );
+                }, $reviews['stories']) : []
+        ),
+        'media_section' => array(
+            'title' => $homepage['media_title'] ?? '',
+            'subtitle' => $homepage['media_subtitle'] ?? '',
+            'featured_media' => !empty($homepage['featured_media']) ? 
+                array_map(function($media_id) {
+                    return array(
+                        'image' => get_the_post_thumbnail_url($media_id) ?? '',
+                        'title' => get_the_title($media_id) ?? '',
+                        'date' => get_the_date('d M Y', $media_id) ?? '',
+                        'duration' => get_field('duration', $media_id) ?? '',
+                        'slug' => get_post_field('post_name', $media_id) ?? ''
+                    );
+                }, $homepage['steps']) : []
+        ),
 
     );
 

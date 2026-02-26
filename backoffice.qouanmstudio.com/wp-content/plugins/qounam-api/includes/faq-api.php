@@ -47,8 +47,8 @@ function qounam_get_faqs() {
 
     // Format the response
     $response = array(
-        'red_label_text' => $faq_section['red_label_text'] ?? '',
         'title' => $faq_section['title'] ?? '',
+        'subtitle' => $faq_section['subtitle'] ?? '',
         'image' => $faq_section['image'] ? $faq_section['image'] : '',
         'faqs' => array()
     );
