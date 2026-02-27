@@ -31,7 +31,7 @@ function qounam_get_about() {
     }
 
     // Get the page fields group
-    $page = get_field('about_fields', 130);
+    $page = get_field('about_fields', 137);
     
     if (!$page) {
         return new WP_REST_Response(array(
@@ -45,12 +45,19 @@ function qounam_get_about() {
         'hero' => array(
             'label' => $page['label'] ?? '',
             'title' => $page['title'] ?? '',
-            'description' => $page['description'] ?? '',
-            'first_image' => $page['first_image'] ?? '',
-            'second_image' => $page['second_image'] ?? ''
+            'subtitle' => $page['description'] ?? '',
+            'listFeatures' => !empty($page['gallery']) ? 
+                array_map(function($image_url) {
+                    return array(
+                            $image_url                       
+                    );
+                }, $page['gallery']) : []
         ),
-        'video_section' => array(
+        'our_story_section' => array(
             'video' => $page['video'] ?? '',
+            'label' => $page['story_label'] ?? '',
+            'title' => $page['story_title'] ?? '',
+            'listParagraphs' => $page['story_description'] ?? '',
             'numbers' => !empty($page['numbers']) ? 
                 array_map(function($number) {
                     return array(
@@ -59,26 +66,60 @@ function qounam_get_about() {
                     );
                 }, $page['numbers']) : []
         ),
-        'mission_vision_section' => array(
-            'vision_label' => $page['vision_label'] ?? '',
-            'vision_description' => $page['vision_description'] ?? '',
-            'mission_vision_image' => $page['mission_vision_image'] ?? '',
-            'mission_label' => $page['mission_label'] ?? '',
-            'mission_description' => $page['mission_description'] ?? '',
+        'design_section' => array(
+            'label' => $page['design_label'] ?? '',
+            'title' => $page['design_title'] ?? '',
+            'description' => $page['design_description'] ?? '',
+            'second_title' => $page['design_second_title'] ?? '',
+            'second_description' => $page['mission_description'] ?? '',
+            'image' => $page['design_image'] ?? '',
+            'timelines' => !empty($page['timelines']) ? 
+                array_map(function($number) {
+                    return array(
+                        'icon' => $number['icon'] ?? '',
+                        'title' => $number['title'] ?? '',
+                        'description' => $number['description'] ?? '',
+                        'image' => $number['image'] ?? ''
+                    );
+                }, $page['timelines']) : []
+            
         ),
-        'values_section' => array(
-            'values_label' => $page['values_label'] ?? '',
-            'values_title' => $page['values_title'] ?? '',
-            'values_description' => $page['values_description'] ?? '',
-            'values' => !empty($page['values']) ? 
+        'mission_section' => array(
+            'label' => $page['mission_label'] ?? '',
+            'title' => $page['mission_title'] ?? '',
+            'image' => $page['mission_image'] ?? '',
+        ),
+        'vision_section' => array(
+            'label' => $page['vision_label'] ?? '',
+            'title' => $page['vision_description'] ?? '',
+            'image' => $page['vision_image'] ?? '',
+
+        ),
+        'team_section' => array(
+            'title' => $page['team_title'] ?? '',
+            'subtitle' => $page['team_subtitle'] ?? '',
+            'team' => !empty($page['team']) ? 
                 array_map(function($value) {
                     return array(
-                        'title' => $value['title'] ?? '',
+                        'name' => $value['name'] ?? '',
                         'image' => $value['image'] ?? '',
-                        'description' => $value['description'] ?? ''
+                        'title' => $value['position'] ?? ''
                     );
-                }, $page['values']) : []
-        )
+                }, $page['team']) : []
+        ),
+        // 'mission_section' => array(
+        //     'mission_label' => $page['mission_label'] ?? '',
+        //     'mission_title' => $page['mission_title'] ?? '',
+        //     'mission_image' => $page['mission_image'] ?? '',
+        //     'mission' => !empty($page['mission']) ? 
+        //         array_map(function($value) {
+        //             return array(
+        //                 'title' => $value['title'] ?? '',
+        //                 'image' => $value['image'] ?? '',
+        //                 'description' => $value['description'] ?? ''
+        //             );
+        //         }, $page['values']) : []
+        // ),
     );
 
     return new WP_REST_Response(array(
