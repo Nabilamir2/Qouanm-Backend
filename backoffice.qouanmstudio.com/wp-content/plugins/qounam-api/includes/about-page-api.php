@@ -71,7 +71,7 @@ function qounam_get_about() {
             'title' => $page['design_title'] ?? '',
             'description' => $page['design_description'] ?? '',
             'second_title' => $page['design_second_title'] ?? '',
-            'second_description' => $page['mission_description'] ?? '',
+            'second_description' => $page['design_second_description'] ?? '',
             'image' => $page['design_image'] ?? '',
             'timelines' => !empty($page['timelines']) ? 
                 array_map(function($number) {
