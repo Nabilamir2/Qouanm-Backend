@@ -1,8 +1,8 @@
 <?php
 /**
- * Programs API Endpoints
+ * Projects API Endpoints
  * 
- * Handles program listing, filtering, sorting, and enrollment
+ * Handles project listing, filtering, sorting, and enrollment
  */
 
 if (!defined('ABSPATH')) {
@@ -11,10 +11,10 @@ if (!defined('ABSPATH')) {
 
 // Register custom endpoints
 add_action('rest_api_init', function () {
-    // Get programs with pagination, sorting and filtering
-    register_rest_route('qounam/v1', '/programs', array(
+    // Get projects with pagination, sorting and filtering
+    register_rest_route('qounam/v1', '/projects', array(
         'methods' => 'GET',
-        'callback' => 'qounam_get_programs',
+        'callback' => 'qounam_get_projects',
         'permission_callback' => '__return_true',
         'args' => array(
             'page' => array(
@@ -44,58 +44,58 @@ add_action('rest_api_init', function () {
         ),
     ));
 
-    // Get program categories
-    register_rest_route('qounam/v1', '/programs/program-categories', array(
+    // Get project categories
+    register_rest_route('qounam/v1', '/projects/project-categories', array(
         'methods' => 'GET',
-        'callback' => 'qounam_get_program_categories',
+        'callback' => 'qounam_get_project_categories',
         'permission_callback' => '__return_true',
     ));
 
-    // Enroll in program (use slug)
-    register_rest_route('qounam/v1', '/programs/(?P<program_slug>[^/]+)/enroll', array(
+    // Enroll in project (use slug)
+    register_rest_route('qounam/v1', '/projects/(?P<project_slug>[^/]+)/enroll', array(
         'methods' => 'POST',
-        'callback' => 'qounam_enroll_program',
+        'callback' => 'qounam_enroll_project',
         'permission_callback' => 'qounam_check_jwt_auth',
     ));
 
-    // Get program details (use slug)
-    register_rest_route('qounam/v1', '/programs/(?P<slug>[^/]+)', array(
+    // Get project details (use slug)
+    register_rest_route('qounam/v1', '/projects/(?P<slug>[^/]+)', array(
         'methods' => 'GET',
-        'callback' => 'qounam_get_program_details',
+        'callback' => 'qounam_get_project_details',
         'permission_callback' => '__return_true',
     ));
 
     // Wishlist endpoints
-    register_rest_route('qounam/v1', '/wishlist', array(
-        'methods' => 'GET',
-        'callback' => 'qounam_get_wishlist',
-        'permission_callback' => 'qounam_check_jwt_auth',
-    ));
+    // register_rest_route('qounam/v1', '/wishlist', array(
+    //     'methods' => 'GET',
+    //     'callback' => 'qounam_get_wishlist',
+    //     'permission_callback' => 'qounam_check_jwt_auth',
+    // ));
 
-    register_rest_route('qounam/v1', '/wishlist/add', array(
-        'methods' => 'POST',
-        'callback' => 'qounam_add_to_wishlist',
-        'permission_callback' => 'qounam_check_jwt_auth',
-    ));
+    // register_rest_route('qounam/v1', '/wishlist/add', array(
+    //     'methods' => 'POST',
+    //     'callback' => 'qounam_add_to_wishlist',
+    //     'permission_callback' => 'qounam_check_jwt_auth',
+    // ));
 
-    register_rest_route('qounam/v1', '/wishlist/remove', array(
-        'methods' => 'POST',
-        'callback' => 'qounam_remove_from_wishlist',
-        'permission_callback' => 'qounam_check_jwt_auth',
-    ));
+    // register_rest_route('qounam/v1', '/wishlist/remove', array(
+    //     'methods' => 'POST',
+    //     'callback' => 'qounam_remove_from_wishlist',
+    //     'permission_callback' => 'qounam_check_jwt_auth',
+    // ));
 
-    // Get programs calendar
-    register_rest_route('qounam/v1', '/programs-calendar', array(
-        'methods' => 'GET',
-        'callback' => 'qounam_get_programs_calendar',
-        'permission_callback' => '__return_true',
-    ));
+    // // Get projects calendar
+    // register_rest_route('qounam/v1', '/projects-calendar', array(
+    //     'methods' => 'GET',
+    //     'callback' => 'qounam_get_projects_calendar',
+    //     'permission_callback' => '__return_true',
+    // ));
 });
 
 /**
- * Get programs with pagination, sorting and filtering
+ * Get projects with pagination, sorting and filtering
  */
-function qounam_get_programs($request)
+function qounam_get_projects($request)
 {
     $page = max(1, intval($request->get_param('page')));
     $per_page = intval($request->get_param('per_page'));
@@ -104,7 +104,7 @@ function qounam_get_programs($request)
     $search = sanitize_text_field($request->get_param('s'));
 
     $args = array(
-        'post_type' => 'program',
+        'post_type' => 'project',
         'post_status' => 'publish',
         'posts_per_page' => $per_page,
         'paged' => $page,
@@ -119,7 +119,7 @@ function qounam_get_programs($request)
     // Add category filter
     if (!empty($category)) {
         $args['tax_query'][] = array(
-            'taxonomy' => 'program-category',
+            'taxonomy' => 'project-category',
             'field' => 'slug',
             'terms' => $category
         );
@@ -148,14 +148,14 @@ function qounam_get_programs($request)
 
 
     $query = get_posts($args);
-    $total_programs = count($query);
-    $total_pages = ceil($total_programs / $per_page);
+    $total_projects = count($query);
+    $total_pages = ceil($total_projects / $per_page);
 
-    $programs = array();
+    $projects = array();
     if ($query) {
-        foreach ($query as $program) {
-            $program_id = $program->ID;
-            $categories = get_the_terms($program_id, 'program-category');
+        foreach ($query as $project) {
+            $project_id = $project->ID;
+            $categories = get_the_terms($project_id, 'project-category');
             $category_list = '';
 
             if ($categories && !is_wp_error($categories)) {
@@ -169,22 +169,22 @@ function qounam_get_programs($request)
                 $category_list = $categories[0]->name;
             }
 
-            $programs[] = array(
-                'id' => $program_id,
-                'title' => $program->post_title,
-                'excerpt' => $program->post_excerpt,
-                'slug' => $program->post_name,
-                'thumbnail' => get_the_post_thumbnail_url($program_id),
-                'hover_thumbnail' => get_field('hover_thumbnail', $program_id),
+            $projects[] = array(
+                'id' => $project_id,
+                'title' => $project->post_title,
+                'excerpt' => $project->post_excerpt,
+                'slug' => $project->post_name,
+                'thumbnail' => get_the_post_thumbnail_url($project_id),
+                'hover_thumbnail' => get_field('hover_thumbnail', $project_id),
                 'category' => $category_list,
-                'days_per_week' => get_field('days_per_week', $program_id),
-                'duration_in_weeks' => get_field('duration_in_weeks', $program_id),
-                'start_from' => get_field('start_from', $program_id),
-                'price' => get_field('price', $program_id),
-                'sale_price' => get_field('sale_price', $program_id),
-                'image' => get_the_post_thumbnail_url($program_id),
-                'seats_available' => get_field('seats_available', $program_id),
-                'limited_offer' => get_field('limited_offer', $program_id)
+                'days_per_week' => get_field('days_per_week', $project_id),
+                'duration_in_weeks' => get_field('duration_in_weeks', $project_id),
+                'start_from' => get_field('start_from', $project_id),
+                'price' => get_field('price', $project_id),
+                'sale_price' => get_field('sale_price', $project_id),
+                'image' => get_the_post_thumbnail_url($project_id),
+                'seats_available' => get_field('seats_available', $project_id),
+                'limited_offer' => get_field('limited_offer', $project_id)
             );
         }
         wp_reset_postdata();
@@ -194,19 +194,19 @@ function qounam_get_programs($request)
         'success' => true,
         'page' => $page,
         'per_page' => $per_page,
-        'total_items' => $total_programs,
+        'total_items' => $total_projects,
         'total_pages' => $total_pages,
-        'programs' => $programs,
+        'projects' => $projects,
     );
 }
 
 /**
- * Get all program categories
+ * Get all project categories
  */
-function qounam_get_program_categories()
+function qounam_get_project_categories()
 {
     $categories = get_terms(array(
-        'taxonomy' => 'program-category',
+        'taxonomy' => 'project-category',
         'hide_empty' => false,
     ));
 
@@ -231,36 +231,36 @@ function qounam_get_program_categories()
 }
 
 /**
- * Enroll user in program
+ * Enroll user in project
  */
-function qounam_enroll_program($request)
+function qounam_enroll_project($request)
 {
     $user_id = qounam_get_current_user_from_jwt();
-    $program_slug = $request['program_slug'];
+    $project_slug = $request['project_slug'];
     $params = $request->get_json_params();
 
     if (!$user_id) {
         return new WP_Error('unauthorized', 'Unauthorized', array('status' => 401));
     }
 
-    // Check if program exists
-    $program = get_page_by_path($program_slug, OBJECT, 'program');
-    if (!$program || $program->post_type !== 'program') {
-        return new WP_Error('program_not_found', 'Program not found', array('status' => 404));
+    // Check if project exists
+    $project = get_page_by_path($project_slug, OBJECT, 'project');
+    if (!$project || $project->post_type !== 'project') {
+        return new WP_Error('project_not_found', 'Project not found', array('status' => 404));
     }
 
-    $program_id = $program->ID;
+    $project_id = $project->ID;
 
-    $registration_button = get_field('register_button', $program_id);
+    $registration_button = get_field('register_button', $project_id);
     $redirect_url = (!empty($registration_button)) ? $registration_button['url'] : '';
-    // Check if user already has a pending or approved request for this program
+    // Check if user already has a pending or approved request for this project
     $existing_request = get_posts(array(
-        'post_type' => 'program-request',
+        'post_type' => 'project-request',
         'meta_query' => array(
             'relation' => 'AND',
             array(
-                'key' => 'program',
-                'value' => $program_id,
+                'key' => 'project',
+                'value' => $project_id,
                 'compare' => '='
             ),
             array(
@@ -272,13 +272,13 @@ function qounam_enroll_program($request)
     ));
 
     if (!empty($existing_request)) {
-        return new WP_Error('request_exists', 'You have already submitted a request for this program', array('status' => 400));
+        return new WP_Error('request_exists', 'You have already submitted a request for this project', array('status' => 400));
     }
 
-    // Create new program request
+    // Create new project request
     $request_data = array(
-        'post_title' => 'Program Request - ' . get_the_title($program_id) . ' - ' . $params['first_name'] . ' ' . $params['last_name'],
-        'post_type' => 'program-request',
+        'post_title' => 'Project Request - ' . get_the_title($project_id) . ' - ' . $params['first_name'] . ' ' . $params['last_name'],
+        'post_type' => 'project-request',
         'post_status' => 'publish',
         'meta_input' => array(
             'first_name' => sanitize_text_field($params['first_name']),
@@ -290,7 +290,7 @@ function qounam_enroll_program($request)
             'company' => sanitize_text_field($params['company']),
             'status' => 'pending',
             'user_id' => $user_id,
-            'program' => $program_id,
+            'project' => $project_id,
             'request_date' => current_time('mysql')
         )
     );
@@ -303,9 +303,9 @@ function qounam_enroll_program($request)
 
     // Send notification email to admin
     $admin_email = get_option('admin_email');
-    $subject = 'New Program Request: ' . get_the_title($program_id);
-    $message = 'A new program request has been submitted:<br>';
-    $message .= 'Program: ' . get_the_title($program_id) . '<br>';
+    $subject = 'New Project Request: ' . get_the_title($project_id);
+    $message = 'A new project request has been submitted:<br>';
+    $message .= 'Project: ' . get_the_title($project_id) . '<br>';
     $message .= 'Name: ' . $params['first_name'] . ' ' . $params['last_name'] . '<br>';
     $message .= 'Email: ' . $params['email'] . '<br>';
     $message .= 'Phone: ' . $params['phone_number'] . '<br>';
@@ -339,11 +339,11 @@ function qounam_get_wishlist($request)
     $wishlist = get_user_meta($user_id, 'wishlist', true) ?: array();
     $wishlist = array_map('intval', $wishlist); // Ensure all IDs are integers
 
-    // Get program details for each item in wishlist
-    $programs = array();
+    // Get project details for each item in wishlist
+    $projects = array();
     if (!empty($wishlist)) {
         $args = array(
-            'post_type' => 'program',
+            'post_type' => 'project',
             'post__in' => $wishlist,
             'posts_per_page' => -1,
             'orderby' => 'post__in', // Maintain the order of IDs
@@ -353,28 +353,28 @@ function qounam_get_wishlist($request)
         if ($query->have_posts()) {
             while ($query->have_posts()) {
                 $query->the_post();
-                $program_id = get_the_ID();
-                $programs[] = array(
-                    'id' => $program_id,
+                $project_id = get_the_ID();
+                $projects[] = array(
+                    'id' => $project_id,
                     'title' => get_the_title(),
                     'slug' => get_post_field('post_name'),
-                    'status' => get_field('status', $program_id),
-                    'thumbnail' => get_the_post_thumbnail_url($program_id),
-                    'hover_thumbnail' => get_field('hover_thumbnail', $program_id),
+                    'status' => get_field('status', $project_id),
+                    'thumbnail' => get_the_post_thumbnail_url($project_id),
+                    'hover_thumbnail' => get_field('hover_thumbnail', $project_id),
                     'category' => get_terms(array(
-                        'taxonomy' => 'program-category',
+                        'taxonomy' => 'project-category',
                         'hide_empty' => true,
-                        'object_ids' => $program_id
+                        'object_ids' => $project_id
                     ))[0]->name,
-                    'excerpt' => get_the_excerpt($program_id),
-                    'price' => get_field('price', $program_id),
-                    'sale_price' => get_field('sale_price', $program_id),
-                    'seats_available' => get_field('seats_available', $program_id),
-                    'limited_offer' => get_field('limited_offer', $program_id),
-                    'days_per_week' => get_field('days_per_week', $program_id),
-                    'duration_in_weeks' => get_field('duration_in_weeks', $program_id),
-                    'start_from' => get_field('start_from', $program_id),
-                    'ends_at' => get_field('ends_at', $program_id)
+                    'excerpt' => get_the_excerpt($project_id),
+                    'price' => get_field('price', $project_id),
+                    'sale_price' => get_field('sale_price', $project_id),
+                    'seats_available' => get_field('seats_available', $project_id),
+                    'limited_offer' => get_field('limited_offer', $project_id),
+                    'days_per_week' => get_field('days_per_week', $project_id),
+                    'duration_in_weeks' => get_field('duration_in_weeks', $project_id),
+                    'start_from' => get_field('start_from', $project_id),
+                    'ends_at' => get_field('ends_at', $project_id)
                 );
             }
             wp_reset_postdata();
@@ -384,31 +384,31 @@ function qounam_get_wishlist($request)
     return array(
         'success' => true,
         'count' => count($wishlist),
-        'programs' => $programs
+        'projects' => $projects
     );
 }
 
 /**
- * Add program to wishlist
+ * Add project to wishlist
  */
 function qounam_add_to_wishlist($request)
 {
     $user_id = qounam_get_current_user_from_jwt();
     $params = $request->get_json_params();
-    $program_id = isset($params['program_id']) ? intval($params['program_id']) : 0;
+    $project_id = isset($params['project_id']) ? intval($params['project_id']) : 0;
 
     if (!$user_id) {
         return new WP_Error('unauthorized', 'Unauthorized', array('status' => 401));
     }
 
-    if (!$program_id) {
-        return new WP_Error('missing_program_id', 'Program ID is required', array('status' => 400));
+    if (!$project_id) {
+        return new WP_Error('missing_project_id', 'Project ID is required', array('status' => 400));
     }
 
-    // Check if program exists
-    $program = get_post($program_id);
-    if (!$program || $program->post_type !== 'program') {
-        return new WP_Error('program_not_found', 'Program not found', array('status' => 404));
+    // Check if project exists
+    $project = get_post($project_id);
+    if (!$project || $project->post_type !== 'project') {
+        return new WP_Error('project_not_found', 'Project not found', array('status' => 404));
     }
 
     // Get current wishlist
@@ -416,44 +416,44 @@ function qounam_add_to_wishlist($request)
     $wishlist = array_map('intval', $wishlist);
 
     // Check if already in wishlist
-    if (in_array($program_id, $wishlist)) {
-        return new WP_Error('already_in_wishlist', 'Program is already in your wishlist', array('status' => 400));
+    if (in_array($project_id, $wishlist)) {
+        return new WP_Error('already_in_wishlist', 'Project is already in your wishlist', array('status' => 400));
     }
 
     // Add to wishlist
-    $wishlist[] = $program_id;
+    $wishlist[] = $project_id;
     update_user_meta($user_id, 'wishlist', $wishlist);
 
     return array(
         'success' => true,
-        'message' => 'Program added to wishlist',
+        'message' => 'Project added to wishlist',
         'wishlist_count' => count($wishlist)
     );
 }
 
 /**
- * Remove program from wishlist
+ * Remove project from wishlist
  */
 function qounam_remove_from_wishlist($request)
 {
     $user_id = qounam_get_current_user_from_jwt();
     $params = $request->get_json_params();
-    $program_id = isset($params['program_id']) ? intval($params['program_id']) : 0;
+    $project_id = isset($params['project_id']) ? intval($params['project_id']) : 0;
 
     if (!$user_id) {
         return new WP_Error('unauthorized', 'Unauthorized', array('status' => 401));
     }
 
-    if (!$program_id) {
-        return new WP_Error('missing_program_id', 'Program ID is required', array('status' => 400));
+    if (!$project_id) {
+        return new WP_Error('missing_project_id', 'Project ID is required', array('status' => 400));
     }
 
     // Get current wishlist
     $wishlist = get_user_meta($user_id, 'wishlist', true) ?: array();
     $wishlist = array_map('intval', $wishlist);
 
-    // Find and remove program from wishlist
-    $index = array_search($program_id, $wishlist);
+    // Find and remove project from wishlist
+    $index = array_search($project_id, $wishlist);
     if ($index !== false) {
         unset($wishlist[$index]);
         $wishlist = array_values($wishlist); // Reindex array
@@ -462,58 +462,58 @@ function qounam_remove_from_wishlist($request)
 
     return array(
         'success' => true,
-        'message' => 'Program removed from wishlist',
+        'message' => 'Project removed from wishlist',
         'wishlist_count' => count($wishlist)
     );
 }
 
 /**
- * Example: Get program details with ACF fields
+ * Example: Get project details with ACF fields
  */
-function qounam_get_program_details($request)
+function qounam_get_project_details($request)
 {
     $slug = sanitize_title($request['slug']);
 
-    // Resolve slug -> program post
-    $program = get_page_by_path($slug, OBJECT, 'program');
+    // Resolve slug -> project post
+    $project = get_page_by_path($slug, OBJECT, 'project');
 
-    if (!$program || $program->post_type !== 'program') {
-        return new WP_Error('program_not_found', 'Program not found', array('status' => 404));
+    if (!$project || $project->post_type !== 'project') {
+        return new WP_Error('project_not_found', 'Project not found', array('status' => 404));
     }
 
-    $program_id = $program->ID;
+    $project_id = $project->ID;
 
 
     // Get ACF fields if available
-    $acf_fields = function_exists('get_fields') ? get_fields($program_id) : array();
-    $program_fields = get_field('program_fields', $program_id);
+    $acf_fields = function_exists('get_fields') ? get_fields($project_id) : array();
+    $project_fields = get_field('project_fields', $project_id);
 
-    if (!$program_fields) {
+    if (!$project_fields) {
         return new WP_REST_Response(array(
             'success' => true,
-            'message' => 'No program fields found',
+            'message' => 'No project fields found',
             'data' => array()
         ));
     }
     return array(
         'success' => true,
-        'program' => array(
-            'id' => $program->ID,
-            'title' => $program->post_title,
-            'excerpt' => $program->post_excerpt,
-            'content' => $program->post_content,
-            'cover_image' => get_field('cover_image', $program_id),
-            'start_from' => get_field('start_from', $program_id),
-            'ends_at' => get_field('ends_at', $program_id),
-            'time' => get_field('time', $program_id),
-            'duration_in_weeks' => get_field('duration_in_weeks', $program_id),
-            'days_per_week' => get_field('days_per_week', $program_id),
-            'seats_available' => get_field('seats_available', $program_id),
-            'limited_offer' => get_field('limited_offer', $program_id),
-            'price' => get_field('price', $program_id),
-            'sale_price' => get_field('sale_price', $program_id),
-            'register_button' => get_field('register_button', $program_id),
-            'pdf_button' => get_field('pdf_button', $program_id),
+        'project' => array(
+            'id' => $project->ID,
+            'title' => $project->post_title,
+            'excerpt' => $project->post_excerpt,
+            'content' => $project->post_content,
+            'cover_image' => get_field('cover_image', $project_id),
+            'start_from' => get_field('start_from', $project_id),
+            'ends_at' => get_field('ends_at', $project_id),
+            'time' => get_field('time', $project_id),
+            'duration_in_weeks' => get_field('duration_in_weeks', $project_id),
+            'days_per_week' => get_field('days_per_week', $project_id),
+            'seats_available' => get_field('seats_available', $project_id),
+            'limited_offer' => get_field('limited_offer', $project_id),
+            'price' => get_field('price', $project_id),
+            'sale_price' => get_field('sale_price', $project_id),
+            'register_button' => get_field('register_button', $project_id),
+            'pdf_button' => get_field('pdf_button', $project_id),
             'tabs_title' => 'Compensation, Benefits and Incentives',
             'tabs' => array(
                 'Overview',
@@ -524,69 +524,69 @@ function qounam_get_program_details($request)
                 'FAQs'
             ),
             'overview_section' => array(
-                'title' => $program_fields['overview_title'],
-                'description' => $program_fields['overview_description'],
-                'image' => $program_fields['overview_image'],
+                'title' => $project_fields['overview_title'],
+                'description' => $project_fields['overview_description'],
+                'image' => $project_fields['overview_image'],
             ),
             'content_section' => array(
-                'label' => $program_fields['contents_label'],
-                'title' => $program_fields['contents_title'],
-                'contents' => !empty($program_fields['contents']) ?
+                'label' => $project_fields['contents_label'],
+                'title' => $project_fields['contents_title'],
+                'contents' => !empty($project_fields['contents']) ?
                     array_map(function ($feature) {
                         return array(
                             'title' => $feature['text'] ?? ''
                         );
-                    }, $program_fields['contents']) : []
+                    }, $project_fields['contents']) : []
             ),
             'benefits_section' => array(
-                'label' => $program_fields['benefits_label'],
-                'title' => $program_fields['benefits_title'],
-                'subtitle' => $program_fields['benefits_subtitle'],
-                'image' => $program_fields['benefits_image'],
-                'benefits' => !empty($program_fields['benefits']) ?
+                'label' => $project_fields['benefits_label'],
+                'title' => $project_fields['benefits_title'],
+                'subtitle' => $project_fields['benefits_subtitle'],
+                'image' => $project_fields['benefits_image'],
+                'benefits' => !empty($project_fields['benefits']) ?
                     array_map(function ($feature) {
                         return array(
                             'title' => $feature['text'] ?? ''
                         );
-                    }, $program_fields['benefits']) : []
+                    }, $project_fields['benefits']) : []
             ),
             'audience_section' => array(
-                'label' => $program_fields['audience_label'],
-                'title' => $program_fields['audience_title'],
-                'subtitle' => $program_fields['audience_subtitle']
+                'label' => $project_fields['audience_label'],
+                'title' => $project_fields['audience_title'],
+                'subtitle' => $project_fields['audience_subtitle']
             ),
             'registration_terms_section' => array(
-                'label' => $program_fields['terms_label'],
-                'title' => $program_fields['terms_title'],
-                'image' => $program_fields['terms_image'],
-                'registration_terms' => !empty($program_fields['terms']) ?
+                'label' => $project_fields['terms_label'],
+                'title' => $project_fields['terms_title'],
+                'image' => $project_fields['terms_image'],
+                'registration_terms' => !empty($project_fields['terms']) ?
                     array_map(function ($feature) {
                         return array(
                             'title' => $feature['text'] ?? ''
                         );
-                    }, $program_fields['terms']) : []
+                    }, $project_fields['terms']) : []
             ),
         ),
     );
 }
 
 /**
- * Get programs calendar grouped by month
+ * Get projects calendar grouped by month
  */
 /**
- * Get programs calendar grouped by month then by day-of-month (based on start_from)
+ * Get projects calendar grouped by month then by day-of-month (based on start_from)
  *
  * Response shape:
  * data: {
  *   january: [
- *     { DAYS: 3,  program: [ ...programs starting on Jan 3... ] },
- *     { DAYS: 20, program: [ ... ] }
+ *     { DAYS: 3,  project: [ ...projects starting on Jan 3... ] },
+ *     { DAYS: 20, project: [ ... ] }
  *   ],
  *   february: [],
  *   ...
  * }
  */
-function qounam_get_programs_calendar($request) {
+function qounam_get_projects_calendar($request) {
 
     $year = (int) ($request->get_param('year') ?: date('Y'));
 
@@ -602,8 +602,8 @@ function qounam_get_programs_calendar($request) {
         'data'    => array_fill_keys($months_order, []),
     ];
 
-    $programs = get_posts([
-        'post_type'   => 'program',
+    $projects = get_posts([
+        'post_type'   => 'project',
         'post_status' => 'publish',
         'numberposts' => -1,
         'meta_query'  => [
@@ -618,17 +618,17 @@ function qounam_get_programs_calendar($request) {
     // Internal maps for grouping: month => day => bucket
     $month_day_map = [];
 
-    foreach ($programs as $program) {
+    foreach ($projects as $project) {
 
-        $start_raw = get_field('start_from', $program->ID);
-        $end_raw   = get_field('ends_at', $program->ID);
+        $start_raw = get_field('start_from', $project->ID);
+        $end_raw   = get_field('ends_at', $project->ID);
         if (empty($start_raw) || empty($end_raw)) continue;
 
         // Support ACF-style d/m/Y OR ISO-ish dates
         $start = DateTime::createFromFormat('d/m/Y', $start_raw) ?: new DateTime($start_raw);
         $end   = DateTime::createFromFormat('d/m/Y', $end_raw)   ?: new DateTime($end_raw);
 
-        // Only include programs whose START date is in requested year
+        // Only include projects whose START date is in requested year
         if ((int) $start->format('Y') !== $year) continue;
 
         $month_key = strtolower($start->format('F'));
@@ -646,14 +646,14 @@ function qounam_get_programs_calendar($request) {
         if (!isset($month_day_map[$month_key][$day_key])) {
             $month_day_map[$month_key][$day_key] = [
                 'DAYS'    => $day_key, // grouping by day
-                'program' => [],
+                'project' => [],
             ];
         }
 
-        $month_day_map[$month_key][$day_key]['program'][] = [
-            'id'          => $program->ID,
-            'title'       => $program->post_title,
-            'slug'        => $program->post_name,
+        $month_day_map[$month_key][$day_key]['project'][] = [
+            'id'          => $project->ID,
+            'title'       => $project->post_title,
+            'slug'        => $project->post_name,
             'start_date'  => $start->format('Y-m-d'),
             'end_date'    => $end->format('Y-m-d'),
             'start_day'   => (int) $start->format('d'),
@@ -662,21 +662,21 @@ function qounam_get_programs_calendar($request) {
             'end_month'   => strtolower($end->format('F')),
             'year'        => (int) $start->format('Y'),
             'days_count'  => $days_count, // duration
-            'status' => get_field('status', $program->ID),
-            'thumbnail' => get_the_post_thumbnail_url($program->ID),
-            'hover_thumbnail' => get_field('hover_thumbnail', $program->ID),
+            'status' => get_field('status', $project->ID),
+            'thumbnail' => get_the_post_thumbnail_url($project->ID),
+            'hover_thumbnail' => get_field('hover_thumbnail', $project->ID),
             'category' => get_terms(array(
-                'taxonomy' => 'program-category',
+                'taxonomy' => 'project-category',
                 'hide_empty' => true,
-                'object_ids' => $program->ID
+                'object_ids' => $project->ID
             ))[0]->name,
-            'excerpt' => get_the_excerpt($program->ID),
-            'price' => get_field('price', $program->ID),
-            'sale_price' => get_field('sale_price', $program->ID),
-            'seats_available' => get_field('seats_available', $program->ID),
-            'limited_offer' => get_field('limited_offer', $program->ID),
-            'days_per_week' => get_field('days_per_week', $program->ID),
-            'duration_in_weeks' => get_field('duration_in_weeks', $program->ID),
+            'excerpt' => get_the_excerpt($project->ID),
+            'price' => get_field('price', $project->ID),
+            'sale_price' => get_field('sale_price', $project->ID),
+            'seats_available' => get_field('seats_available', $project->ID),
+            'limited_offer' => get_field('limited_offer', $project->ID),
+            'days_per_week' => get_field('days_per_week', $project->ID),
+            'duration_in_weeks' => get_field('duration_in_weeks', $project->ID),
         ];
     }
 

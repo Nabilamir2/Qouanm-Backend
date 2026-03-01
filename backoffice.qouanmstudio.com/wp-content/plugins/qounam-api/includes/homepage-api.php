@@ -115,8 +115,8 @@ function qounam_get_homepage() {
                 array_map(function($project) {
                     $project_id = $project['project'];
                     return array(
-                        'image' => $project['image'] ?? '',
-                        'logo' => get_the_post_thumbnail_url($project_id) ?? '',
+                        'logo' => get_field('logo', $project_id),
+                        'image' => get_the_post_thumbnail_url($project_id),
                         'title' => get_the_title($project_id) ?? '',
                         'excerpt' => get_the_excerpt($project_id) ?? '',
                         'rooms_design' => get_field('rooms_design',$project_id) ?? '',
