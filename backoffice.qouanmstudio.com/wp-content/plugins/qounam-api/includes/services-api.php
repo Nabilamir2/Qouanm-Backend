@@ -185,7 +185,7 @@ function qounam_get_services($request)
         'success' => true,
         'label' => get_field('label', 182),
         'title' => get_field('title', 182),
-        'subtitle ' => get_field('subtitle ', 182),
+        'subtitle ' => get_field('subtitle', 182),
         'services' => $services,
         'page' => $page,
         'per_page' => $per_page,
