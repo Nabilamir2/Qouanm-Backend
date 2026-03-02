@@ -164,11 +164,10 @@ function qounam_get_projects($request)
             $related_services = get_field('related_services', $project_id);
 
             $projects[] = array(
-                'title' => get_the_title($project_id),
+                'title' => html_entity_decode(get_the_title($project_id)) ?? '',
                 'slug' => get_post_field( 'post_name', $project_id),
                 'image' => get_the_post_thumbnail_url($project_id),
                 'logo' => get_field('logo', $project_id),
-                'title' => get_the_title($project_id) ?? '',
                 'excerpt' => get_the_excerpt($project_id) ?? '',
                 'rooms_design' => get_field('rooms_design',$project_id) ?? '',
                 'furniture_units' => get_field('furniture_units',$project_id) ?? '',
