@@ -99,7 +99,7 @@ function qounam_get_projects($request)
 {
     $page = max(1, intval($request->get_param('page')));
     $per_page = intval($request->get_param('per_page'));
-    $category = sanitize_text_field($request->get_param('category'));
+    $service = sanitize_text_field($request->get_param('service'));
     $orderby = sanitize_text_field($request->get_param('orderby'));
     $search = sanitize_text_field($request->get_param('s'));
 
@@ -108,7 +108,7 @@ function qounam_get_projects($request)
         'post_status' => 'publish',
         'posts_per_page' => $per_page,
         'paged' => $page,
-        'tax_query' => array(),
+        'meta_query'     => array('relation' => 'AND'),
     );
 
     // Add search filter
@@ -116,15 +116,21 @@ function qounam_get_projects($request)
         $args['s'] = $search;
     }
 
-    // Add category filter
-    if (!empty($category)) {
-        $args['tax_query'][] = array(
-            'taxonomy' => 'project-category',
-            'field' => 'slug',
-            'terms' => $category
+    $service_id = 0;
+    if (!empty($service) && $service !== 'all') {
+        $service_post = get_page_by_path($service, OBJECT, 'service');
+        if (!$service_post) {
+            return new WP_Error('service_not_found', 'Service not found', array('status' => 404));
+        }
+
+        $service_id = (int) $service_post->ID;
+
+        $args['meta_query'][] = array(
+            'key'     => 'related_services',
+            'value'   => '"' . $service_id . '"',
+            'compare' => 'LIKE',
         );
     }
-
     // Add sorting
     switch ($orderby) {
         case 'price':
@@ -155,41 +161,74 @@ function qounam_get_projects($request)
     if ($query) {
         foreach ($query as $project) {
             $project_id = $project->ID;
-            $categories = get_the_terms($project_id, 'project-category');
-            $category_list = '';
-
-            if ($categories && !is_wp_error($categories)) {
-                // $category_list = array_map(function($cat) {
-                //     return array(
-                //         'id' => $cat->term_id,
-                //         'name' => $cat->name,
-                //         'slug' => $cat->slug
-                //     );
-                // }, $categories);
-                $category_list = $categories[0]->name;
-            }
+            $related_services = get_field('related_services', $project_id);
 
             $projects[] = array(
-                'id' => $project_id,
-                'title' => $project->post_title,
-                'excerpt' => $project->post_excerpt,
-                'slug' => $project->post_name,
-                'thumbnail' => get_the_post_thumbnail_url($project_id),
-                'hover_thumbnail' => get_field('hover_thumbnail', $project_id),
-                'category' => $category_list,
-                'days_per_week' => get_field('days_per_week', $project_id),
-                'duration_in_weeks' => get_field('duration_in_weeks', $project_id),
-                'start_from' => get_field('start_from', $project_id),
-                'price' => get_field('price', $project_id),
-                'sale_price' => get_field('sale_price', $project_id),
+                'title' => get_the_title($project_id),
+                'slug' => get_post_field( 'post_name', $project_id),
                 'image' => get_the_post_thumbnail_url($project_id),
-                'seats_available' => get_field('seats_available', $project_id),
-                'limited_offer' => get_field('limited_offer', $project_id)
+                'logo' => get_field('logo', $project_id),
+                'title' => get_the_title($project_id) ?? '',
+                'excerpt' => get_the_excerpt($project_id) ?? '',
+                'rooms_design' => get_field('rooms_design',$project_id) ?? '',
+                'furniture_units' => get_field('furniture_units',$project_id) ?? '',
+                'weeks' => get_field('weeks',$project_id) ?? '',
+                'related_services' =>   
+                    array_map(function ($service_id) {
+                        return array(
+                            'title' => get_the_title($service_id) ?? ''
+                        );
+                    }, $related_services)
             );
         }
         wp_reset_postdata();
     }
 
+        /**
+     * Build filter_services: all services that have projects
+     * (Unique services referenced by any project.related_services)
+     */
+    $all_project_ids = get_posts(array(
+        'post_type'      => 'project',
+        'post_status'    => 'publish',
+        'posts_per_page' => -1,
+        'fields'         => 'ids',
+        'no_found_rows'  => true,
+    ));
+
+    $service_ids_map = array(); // associative set
+    foreach ($all_project_ids as $pid) {
+        $sids = get_field('related_services', $pid) ?: array(); // IDs
+        foreach ((array) $sids as $sid) {
+            $sid = (int) $sid;
+            if ($sid) $service_ids_map[$sid] = true;
+        }
+    }
+
+    $service_ids = array_keys($service_ids_map);
+
+    $filter_services = array(
+        array('slug' => 'all', 'title' => 'All Services')
+    );
+
+    if (!empty($service_ids)) {
+        $service_posts = get_posts(array(
+            'post_type'      => 'service',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'post__in'       => $service_ids,
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+        ));
+
+        foreach ($service_posts as $sp) {
+            $filter_services[] = array(
+                'id'    => (int) $sp->ID,
+                'title' => get_the_title($sp->ID) ?: '',
+                'slug'  => get_post_field('post_name', $sp->ID) ?: '',
+            );
+        }
+    }
     return array(
         'success' => true,
         'page' => $page,
@@ -197,6 +236,12 @@ function qounam_get_projects($request)
         'total_items' => $total_projects,
         'total_pages' => $total_pages,
         'projects' => $projects,
+        'filter_services' => $filter_services,
+        'selected_service' => (!empty($service) && $service !== 'all' && $service_id) ? array(
+            'id'    => $service_id,
+            'slug'  => $service,
+            'title' => get_the_title($service_id) ?: '',
+        ) : array('slug' => 'all', 'title' => 'All Services'),
     );
 }
 

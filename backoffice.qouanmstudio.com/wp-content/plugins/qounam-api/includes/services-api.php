@@ -291,8 +291,6 @@ function qounam_get_service_details($request)
                             'rooms_design' => get_field('rooms_design',$project_id) ?? '',
                             'furniture_units' => get_field('furniture_units',$project_id) ?? '',
                             'weeks' => get_field('weeks',$project_id) ?? '',
-                            'slug' => get_post_field('post_name', $project_id) ?? '',
-
                         );
                     }, $related_projects) : []
             ),
