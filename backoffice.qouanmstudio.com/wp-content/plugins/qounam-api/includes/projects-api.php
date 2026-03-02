@@ -239,7 +239,7 @@ function qounam_get_projects($request)
         'selected_service' => (!empty($service) && $service !== 'all' && $service_id) ? array(
             'id'    => $service_id,
             'slug'  => $service,
-            'title' => get_the_title($service_id) ?: '',
+            'title' => html_entity_decode(get_the_title($service_id)) ?: '',
         ) : array('slug' => 'all', 'title' => 'All Services'),
     );
 }
