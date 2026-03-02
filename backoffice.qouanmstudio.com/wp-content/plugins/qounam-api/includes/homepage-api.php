@@ -97,9 +97,7 @@ function qounam_get_homepage() {
         ),
         'partners' => array(
                 'logos' => array_map(function($logo) {
-                            return array(
-                                $logo['image'],
-                            );
+                            return $logo['image'] ?? '';
                         }, $homepage['logos']),
         ),
         'ceo_section' => array(
