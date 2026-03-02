@@ -176,7 +176,7 @@ function qounam_get_projects($request)
                 'related_services' =>   
                     array_map(function ($service_id) {
                         return array(
-                            'title' => get_the_title($service_id) ?? ''
+                            'title' => html_entity_decode(get_the_title($service_id)) ?? ''
                         );
                     }, $related_services)
             );
@@ -224,7 +224,7 @@ function qounam_get_projects($request)
         foreach ($service_posts as $sp) {
             $filter_services[] = array(
                 'id'    => (int) $sp->ID,
-                'title' => get_the_title($sp->ID) ?: '',
+                'title' => html_entity_decode(get_the_title($sp->ID)) ?: '',
                 'slug'  => get_post_field('post_name', $sp->ID) ?: '',
             );
         }
