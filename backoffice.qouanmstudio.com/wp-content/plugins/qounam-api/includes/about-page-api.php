@@ -48,9 +48,7 @@ function qounam_get_about() {
             'subtitle' => $page['description'] ?? '',
             'listFeatures' => !empty($page['gallery']) ? 
                 array_map(function($image_url) {
-                    return array(
-                            $image_url                       
-                    );
+                    return $image_url ?? ''; 
                 }, $page['gallery']) : []
         ),
         'our_story_section' => array(

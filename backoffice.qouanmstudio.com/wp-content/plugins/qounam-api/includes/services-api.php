@@ -166,9 +166,7 @@ function qounam_get_services($request)
                 'description' => get_field('description', $service_id),
                 'gallery' =>!empty($gallery) ? 
                     array_map(function($image_url) {
-                        return array(
-                            $image_url,
-                        );
+                        return $image_url;
                     }, $gallery) : [],
                 'statistics' => array_map(function($statistics) {
                     return array(
