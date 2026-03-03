@@ -112,7 +112,7 @@ function qounam_get_blog_posts($page = 1, $per_page = 10) {
                 'excerpt' => get_the_excerpt(),
                 // 'content' => get_the_content(),
                 'thumbnail' => get_the_post_thumbnail_url($post_id, 'medium_large'),
-                'date' => get_the_date('Y-m-d H:i:s'),
+                'date' => get_the_date('d M Y'),
                 'permalink' => get_permalink(),
                 'categories' => $category_list,
                 'author' => get_the_author_meta('display_name')
@@ -256,7 +256,7 @@ function qounam_get_single_blog($request) {
                 'title' => get_the_title(),
                 'slug' => $post->post_name,
                 'thumbnail' => get_the_post_thumbnail_url(get_the_ID(), 'medium'),
-                'date' => get_the_date('Y-m-d H:i:s'),
+                'date' => get_the_date('d M Y'),
                 'permalink' => get_permalink()
             );
         }
@@ -272,11 +272,11 @@ function qounam_get_single_blog($request) {
         'excerpt' => get_the_excerpt($post),
         'thumbnail' => $thumbnail,
         'cover' => get_field('cover', $post_id),
-        'date' => get_the_date('Y-m-d H:i:s', $post),
-        'modified' => $post->post_modified,
-        'permalink' => get_permalink($post_id),
+        'date' => get_the_date('d M Y', $post),
+        'facebook_url' => get_field('facebook_url', $post_id),
+        'linkedin_url' => get_field('linkedin_url', $post_id),
+        'instagram_url' => get_field('instagram_url', $post_id),
         'categories' => $category_list,
-        'author' => $author,
         'related_posts' => $related_posts
     );
     

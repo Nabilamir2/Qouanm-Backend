@@ -35,9 +35,8 @@ function qounam_get_faqs() {
         return new WP_REST_Response(array(
             'success' => true,
             'data' => array(
+                'label' => '',
                 'title' => '',
-                'subtitle' => '',
-                'image' => '',
                 'categories' => array(
                     array('value' => 'all', 'label' => 'All FAQs')
                 ),
