@@ -136,7 +136,7 @@ function qounam_get_blog_posts($page = 1, $per_page = 10) {
  * Get gallery images
  */
 function qounam_get_gallery() {
-    $page_id = 185;
+    $page_id = 255;
     $gallery = get_field('gallery_images', $page_id);
     
     if (empty($gallery)) {
@@ -166,7 +166,7 @@ function qounam_get_gallery() {
  * Get videos
  */
 function qounam_get_videos() {
-    $page_id = 185;
+    $page_id = 255;
     $videos = get_field('videos', $page_id);
     
     if (empty($videos)) {

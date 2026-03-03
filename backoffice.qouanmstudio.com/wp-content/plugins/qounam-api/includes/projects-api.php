@@ -45,11 +45,11 @@ add_action('rest_api_init', function () {
     ));
 
     // Get project categories
-    register_rest_route('qounam/v1', '/projects/project-categories', array(
-        'methods' => 'GET',
-        'callback' => 'qounam_get_project_categories',
-        'permission_callback' => '__return_true',
-    ));
+    // register_rest_route('qounam/v1', '/projects/project-categories', array(
+    //     'methods' => 'GET',
+    //     'callback' => 'qounam_get_project_categories',
+    //     'permission_callback' => '__return_true',
+    // ));
 
     // Enroll in project (use slug)
     register_rest_route('qounam/v1', '/projects/(?P<project_slug>[^/]+)/enroll', array(
@@ -241,6 +241,109 @@ function qounam_get_projects($request)
             'slug'  => $service,
             'title' => html_entity_decode(get_the_title($service_id)) ?: '',
         ) : array('slug' => 'all', 'title' => 'All Services'),
+    );
+}
+
+/**
+ * Example: Get project details with ACF fields
+ */
+function qounam_get_project_details($request)
+{
+    $slug = sanitize_title($request['slug']);
+
+    // Resolve slug -> project post
+    $project = get_page_by_path($slug, OBJECT, 'project');
+
+    if (!$project || $project->post_type !== 'project') {
+        return new WP_Error('project_not_found', 'Project not found', array('status' => 404));
+    }
+
+    $project_id = $project->ID;
+
+
+    // Get ACF fields if available
+    $acf_fields = function_exists('get_fields') ? get_fields($project_id) : array();
+    $project_fields = get_field('project_fields', $project_id);
+
+    if (!$project_fields) {
+        return new WP_REST_Response(array(
+            'success' => true,
+            'message' => 'No project fields found',
+            'data' => array()
+        )); 
+    }
+    return array(
+        'success' => true,
+        'project' => array(
+            'id' => $project->ID,
+            'title' => $project->post_title,
+            'excerpt' => $project->post_excerpt,
+            'content' => $project->post_content,
+            'cover_image' => get_field('cover_image', $project_id),
+            'start_from' => get_field('start_from', $project_id),
+            'ends_at' => get_field('ends_at', $project_id),
+            'time' => get_field('time', $project_id),
+            'duration_in_weeks' => get_field('duration_in_weeks', $project_id),
+            'days_per_week' => get_field('days_per_week', $project_id),
+            'seats_available' => get_field('seats_available', $project_id),
+            'limited_offer' => get_field('limited_offer', $project_id),
+            'price' => get_field('price', $project_id),
+            'sale_price' => get_field('sale_price', $project_id),
+            'register_button' => get_field('register_button', $project_id),
+            'pdf_button' => get_field('pdf_button', $project_id),
+            'tabs_title' => 'Compensation, Benefits and Incentives',
+            'tabs' => array(
+                'Overview',
+                'Content',
+                'Benefits',
+                'Audience',
+                'Registration Terms',
+                'FAQs'
+            ),
+            'overview_section' => array(
+                'title' => $project_fields['overview_title'],
+                'description' => $project_fields['overview_description'],
+                'image' => $project_fields['overview_image'],
+            ),
+            'content_section' => array(
+                'label' => $project_fields['contents_label'],
+                'title' => $project_fields['contents_title'],
+                'contents' => !empty($project_fields['contents']) ?
+                    array_map(function ($feature) {
+                        return array(
+                            'title' => $feature['text'] ?? ''
+                        );
+                    }, $project_fields['contents']) : []
+            ),
+            'benefits_section' => array(
+                'label' => $project_fields['benefits_label'],
+                'title' => $project_fields['benefits_title'],
+                'subtitle' => $project_fields['benefits_subtitle'],
+                'image' => $project_fields['benefits_image'],
+                'benefits' => !empty($project_fields['benefits']) ?
+                    array_map(function ($feature) {
+                        return array(
+                            'title' => $feature['text'] ?? ''
+                        );
+                    }, $project_fields['benefits']) : []
+            ),
+            'audience_section' => array(
+                'label' => $project_fields['audience_label'],
+                'title' => $project_fields['audience_title'],
+                'subtitle' => $project_fields['audience_subtitle']
+            ),
+            'registration_terms_section' => array(
+                'label' => $project_fields['terms_label'],
+                'title' => $project_fields['terms_title'],
+                'image' => $project_fields['terms_image'],
+                'registration_terms' => !empty($project_fields['terms']) ?
+                    array_map(function ($feature) {
+                        return array(
+                            'title' => $feature['text'] ?? ''
+                        );
+                    }, $project_fields['terms']) : []
+            ),
+        ),
     );
 }
 
@@ -511,108 +614,6 @@ function qounam_remove_from_wishlist($request)
     );
 }
 
-/**
- * Example: Get project details with ACF fields
- */
-function qounam_get_project_details($request)
-{
-    $slug = sanitize_title($request['slug']);
-
-    // Resolve slug -> project post
-    $project = get_page_by_path($slug, OBJECT, 'project');
-
-    if (!$project || $project->post_type !== 'project') {
-        return new WP_Error('project_not_found', 'Project not found', array('status' => 404));
-    }
-
-    $project_id = $project->ID;
-
-
-    // Get ACF fields if available
-    $acf_fields = function_exists('get_fields') ? get_fields($project_id) : array();
-    $project_fields = get_field('project_fields', $project_id);
-
-    if (!$project_fields) {
-        return new WP_REST_Response(array(
-            'success' => true,
-            'message' => 'No project fields found',
-            'data' => array()
-        ));
-    }
-    return array(
-        'success' => true,
-        'project' => array(
-            'id' => $project->ID,
-            'title' => $project->post_title,
-            'excerpt' => $project->post_excerpt,
-            'content' => $project->post_content,
-            'cover_image' => get_field('cover_image', $project_id),
-            'start_from' => get_field('start_from', $project_id),
-            'ends_at' => get_field('ends_at', $project_id),
-            'time' => get_field('time', $project_id),
-            'duration_in_weeks' => get_field('duration_in_weeks', $project_id),
-            'days_per_week' => get_field('days_per_week', $project_id),
-            'seats_available' => get_field('seats_available', $project_id),
-            'limited_offer' => get_field('limited_offer', $project_id),
-            'price' => get_field('price', $project_id),
-            'sale_price' => get_field('sale_price', $project_id),
-            'register_button' => get_field('register_button', $project_id),
-            'pdf_button' => get_field('pdf_button', $project_id),
-            'tabs_title' => 'Compensation, Benefits and Incentives',
-            'tabs' => array(
-                'Overview',
-                'Content',
-                'Benefits',
-                'Audience',
-                'Registration Terms',
-                'FAQs'
-            ),
-            'overview_section' => array(
-                'title' => $project_fields['overview_title'],
-                'description' => $project_fields['overview_description'],
-                'image' => $project_fields['overview_image'],
-            ),
-            'content_section' => array(
-                'label' => $project_fields['contents_label'],
-                'title' => $project_fields['contents_title'],
-                'contents' => !empty($project_fields['contents']) ?
-                    array_map(function ($feature) {
-                        return array(
-                            'title' => $feature['text'] ?? ''
-                        );
-                    }, $project_fields['contents']) : []
-            ),
-            'benefits_section' => array(
-                'label' => $project_fields['benefits_label'],
-                'title' => $project_fields['benefits_title'],
-                'subtitle' => $project_fields['benefits_subtitle'],
-                'image' => $project_fields['benefits_image'],
-                'benefits' => !empty($project_fields['benefits']) ?
-                    array_map(function ($feature) {
-                        return array(
-                            'title' => $feature['text'] ?? ''
-                        );
-                    }, $project_fields['benefits']) : []
-            ),
-            'audience_section' => array(
-                'label' => $project_fields['audience_label'],
-                'title' => $project_fields['audience_title'],
-                'subtitle' => $project_fields['audience_subtitle']
-            ),
-            'registration_terms_section' => array(
-                'label' => $project_fields['terms_label'],
-                'title' => $project_fields['terms_title'],
-                'image' => $project_fields['terms_image'],
-                'registration_terms' => !empty($project_fields['terms']) ?
-                    array_map(function ($feature) {
-                        return array(
-                            'title' => $feature['text'] ?? ''
-                        );
-                    }, $project_fields['terms']) : []
-            ),
-        ),
-    );
-}
 
 /**
  * Get projects calendar grouped by month
