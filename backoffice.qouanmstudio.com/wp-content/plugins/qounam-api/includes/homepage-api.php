@@ -80,9 +80,9 @@ function qounam_get_homepage() {
                     $gallery = get_field('gallery', $service_id);
                     $statistics = get_field('statistics', $service_id);
                     return array(
-                    'title' => $service->post_title,
-                    'excerpt' => $service->post_excerpt,
-                    'slug' => $service->post_name,
+                    'title' => get_the_title($service_id),
+                    'excerpt' => get_the_excerpt($service_id),
+                    'slug' => get_post_field('post_name', $service_id),
                     'thumbnail' => get_the_post_thumbnail_url($service_id),
                     'description' => get_field('description', $service_id),
                     'gallery' =>!empty($gallery) ? 
