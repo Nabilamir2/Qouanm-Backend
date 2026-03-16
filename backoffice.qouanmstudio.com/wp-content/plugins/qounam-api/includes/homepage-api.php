@@ -138,7 +138,7 @@ function qounam_get_homepage() {
                         'title' => $step['title'] ?? '',
                         'description' => $step['description'] ?? ''
                     );
-                }, $homepage['steps']) : []
+                }, $homepage['steps'], array_keys($homepage['steps'])) : []
         ),
         'reviews_section' => array(
             'title' => $reviews['title'] ?? '',
