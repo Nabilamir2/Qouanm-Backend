@@ -138,7 +138,7 @@ function qounam_get_homepage() {
                         'title' => $step['title'] ?? '',
                         'description' => $step['description'] ?? ''
                     );
-                }, $homepage['steps'], array_keys($homepage['steps'])) : []
+                }, $homepage['steps'], array_keys($homepage['steps'])) : []//
         ),
         'reviews_section' => array(
             'title' => $reviews['title'] ?? '',
@@ -153,7 +153,7 @@ function qounam_get_homepage() {
                         'JobDescription' => $single_review['position'] ?? '',
                         'comment' => $single_review['text'] ?? ''
                     );
-                }, $reviews['stories']) : []
+                }, $reviews['stories'], array_keys($homepage['stories'])) : []
         ),
         'media_section' => array(
             'title' => $homepage['media_title'] ?? '',
