@@ -80,19 +80,22 @@ function qounam_get_homepage() {
                     $gallery = get_field('gallery', $service_id);
                     $statistics = get_field('statistics', $service_id);
                     return array(
-                        'title' => get_the_title( $service_id ),
-                        'description' => get_field('description', $service_id),
-                        'gallery' =>!empty($gallery) ? 
-                            array_map(function($image_url) {
-                                return $image_url;
-                            }, $gallery) : [],
-                        'statistics' => array_map(function($statistics) {
-                            return array(
-                                'title' => $statistics['title'] ?? '',
-                                'subtitle' => $statistics['subtitle'] ?? ''
-                            );
-                        }, $statistics)
-                    );
+                    'title' => $service->post_title,
+                    'excerpt' => $service->post_excerpt,
+                    'slug' => $service->post_name,
+                    'thumbnail' => get_the_post_thumbnail_url($service_id),
+                    'description' => get_field('description', $service_id),
+                    'gallery' =>!empty($gallery) ? 
+                        array_map(function($image_url) {
+                            return $image_url;
+                        }, $gallery) : [],
+                    'statistics' => array_map(function($statistics) {
+                        return array(
+                            'title' => $statistics['title'] ?? '',
+                            'subtitle' => $statistics['subtitle'] ?? ''
+                        );
+                    }, $statistics)
+                );
                 }, $homepage['services']) : []
         ),
         'partners' => array(
