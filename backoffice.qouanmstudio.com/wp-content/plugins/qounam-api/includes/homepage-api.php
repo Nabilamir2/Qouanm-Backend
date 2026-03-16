@@ -167,7 +167,7 @@ function qounam_get_homepage() {
                         'duration' => get_field('duration', $media_id) ?? '',
                         'slug' => get_post_field('post_name', $media_id) ?? ''
                     );
-                }, $homepage['steps']) : []
+                }, $homepage['featured_media']) : []
         ),
 
     );
