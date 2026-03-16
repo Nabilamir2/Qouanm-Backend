@@ -153,7 +153,7 @@ function qounam_get_homepage() {
                         'JobDescription' => $single_review['position'] ?? '',
                         'comment' => $single_review['text'] ?? ''
                     );
-                }, $reviews['stories'], array_keys($homepage['stories'])) : []
+                }, $reviews['stories'], array_keys($reviews['stories'])) : []
         ),
         'media_section' => array(
             'title' => $homepage['media_title'] ?? '',
