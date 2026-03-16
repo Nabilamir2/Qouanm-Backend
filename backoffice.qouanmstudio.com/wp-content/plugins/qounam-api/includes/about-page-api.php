@@ -88,7 +88,7 @@ function qounam_get_about() {
             'image' => $page['mission_image'] ?? '',
         ),
         'vision_section' => array(
-            'label' => $page['vision_label'] ?? '',
+            'label' => $page['vision_title'] ?? '',
             'title' => $page['vision_description'] ?? '',
             'image' => $page['vision_image'] ?? '',
 
