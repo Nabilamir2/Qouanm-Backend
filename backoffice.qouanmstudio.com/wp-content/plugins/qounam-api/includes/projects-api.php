@@ -264,6 +264,8 @@ function qounam_get_project_details($request)
     // Get ACF fields if available
     $acf_fields = function_exists('get_fields') ? get_fields($project_id) : array();
     $project_fields = get_field('project_fields', $project_id);
+    $related_services = get_field('related_services', $project_id);
+
 
     if (!$project_fields) {
         return new WP_REST_Response(array(
