@@ -115,6 +115,7 @@ function qounam_get_blog_posts($page = 1, $per_page = 10) {
                 'date' => get_the_date('d M Y'),
                 'permalink' => get_permalink(),
                 'categories' => $category_list,
+                'duration' => get_field('duration').' Mins Read',
                 'author' => get_the_author_meta('display_name')
             );
         }
@@ -276,6 +277,7 @@ function qounam_get_single_blog($request) {
         'facebook_url' => get_field('facebook_url', $post_id),
         'linkedin_url' => get_field('linkedin_url', $post_id),
         'instagram_url' => get_field('instagram_url', $post_id),
+        'duration' => get_field('duration', $post_id).' Mins Read',
         'categories' => $category_list,
         'related_posts' => $related_posts
     );
