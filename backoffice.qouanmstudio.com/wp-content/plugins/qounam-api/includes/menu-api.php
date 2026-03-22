@@ -83,7 +83,9 @@ function qounam_get_menu_by_slug($request) {
         $menu_item = array(
             'id' => $item->ID,
             'title' => $item->title,
-            'slug' => $item->post_name,
+            'slug' => $item->object === 'page' || $item->object === 'post'
+                    ? get_post_field('post_name', $item->object_id)
+                    : $item->post_name,
             'url' => $item->url,
             'target' => $item->target,
             'classes' => $item->classes,
