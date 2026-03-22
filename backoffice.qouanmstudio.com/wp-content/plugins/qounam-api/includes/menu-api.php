@@ -80,12 +80,21 @@ function qounam_get_menu_by_slug($request) {
     $menu_items_flat = array();
     
     foreach ($menu_items as $item) {
+
+        if ($item->type === 'post_type') {
+            $slug = get_post_field('post_name', $item->object_id);
+        } elseif ($item->type === 'taxonomy') {
+            $term = get_term($item->object_id);
+            $slug = $term && !is_wp_error($term) ? $term->slug : null;
+        } else {
+            // custom links
+            $slug = null; // or parse from URL if needed
+        }
+
         $menu_item = array(
             'id' => $item->ID,
             'title' => $item->title,
-            'slug' => $item->object === 'page' || $item->object === 'post'
-                    ? get_post_field('post_name', $item->object_id)
-                    : $item->post_name,
+            'slug' => $slug,
             'url' => $item->url,
             'target' => $item->target,
             'classes' => $item->classes,
