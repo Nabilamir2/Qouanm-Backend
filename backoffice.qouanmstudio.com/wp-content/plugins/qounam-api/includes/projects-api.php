@@ -332,7 +332,7 @@ function qounam_get_project_details($request)
                         return array(
                             'title' => $feature['title'] ?? ''
                         );
-                }, $project_fields['points']) : [],
+                }, $project_fields['challenge_points']) : [],
             ),
             'installations_section' => array(
                 'title' => $project_fields['installations_title'],
