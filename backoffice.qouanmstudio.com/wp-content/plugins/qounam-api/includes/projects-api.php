@@ -276,72 +276,83 @@ function qounam_get_project_details($request)
         'success' => true,
         'project' => array(
             'id' => $project->ID,
-            'title' => $project->post_title,
-            'excerpt' => $project->post_excerpt,
-            'content' => $project->post_content,
+            'title' => html_entity_decode(get_the_title($project_id)) ?? '',
+            'slug' => get_post_field( 'post_name', $project_id),
+            'location' => get_field('location', $project_id),
             'cover_image' => get_field('cover_image', $project_id),
-            'start_from' => get_field('start_from', $project_id),
-            'ends_at' => get_field('ends_at', $project_id),
-            'time' => get_field('time', $project_id),
-            'duration_in_weeks' => get_field('duration_in_weeks', $project_id),
-            'days_per_week' => get_field('days_per_week', $project_id),
-            'seats_available' => get_field('seats_available', $project_id),
-            'limited_offer' => get_field('limited_offer', $project_id),
-            'price' => get_field('price', $project_id),
-            'sale_price' => get_field('sale_price', $project_id),
-            'register_button' => get_field('register_button', $project_id),
-            'pdf_button' => get_field('pdf_button', $project_id),
-            'tabs_title' => 'Compensation, Benefits and Incentives',
-            'tabs' => array(
-                'Overview',
-                'Content',
-                'Benefits',
-                'Audience',
-                'Registration Terms',
-                'FAQs'
-            ),
+            'logo' => get_field('logo', $project_id),
+            'excerpt' => get_the_excerpt($project_id) ?? '',
+            'rooms_design' => get_field('rooms_design',$project_id) ?? '',
+            'furniture_units' => get_field('furniture_units',$project_id) ?? '',
+            'weeks' => get_field('weeks',$project_id) ?? '',
+            'related_services' =>   
+                array_map(function ($service_id) {
+                    return array(
+                        'title' => html_entity_decode(get_the_title($service_id)) ?? ''
+                    );
+                }, $related_services),
             'overview_section' => array(
                 'title' => $project_fields['overview_title'],
                 'description' => $project_fields['overview_description'],
-                'image' => $project_fields['overview_image'],
-            ),
-            'content_section' => array(
-                'label' => $project_fields['contents_label'],
-                'title' => $project_fields['contents_title'],
-                'contents' => !empty($project_fields['contents']) ?
+                'first_image' => $project_fields['first_image'],
+                'second_image' => $project_fields['second_image'],
+                'second_title' => $project_fields['second_title'],
+                'points' => !empty($project_fields['points']) ?
                     array_map(function ($feature) {
                         return array(
-                            'title' => $feature['text'] ?? ''
+                            'title' => $feature['title'] ?? ''
                         );
-                    }, $project_fields['contents']) : []
+                }, $project_fields['points']) : [],
+                'gallery' => !empty($project_fields['gallery']) ?
+                    array_map(function ($image_url) {
+                        return array(
+                            'url' => $image_url ?? ''
+                        );
+                }, $project_fields['gallery']) : []
             ),
-            'benefits_section' => array(
-                'label' => $project_fields['benefits_label'],
-                'title' => $project_fields['benefits_title'],
-                'subtitle' => $project_fields['benefits_subtitle'],
-                'image' => $project_fields['benefits_image'],
-                'benefits' => !empty($project_fields['benefits']) ?
+            'process_section' => array(
+                'title' => $project_fields['process_title'],
+                'subtitle' => $project_fields['process_subtitle'],
+                'processes' => !empty($project_fields['processes']) ?
                     array_map(function ($feature) {
                         return array(
-                            'title' => $feature['text'] ?? ''
+                            'title' => $feature['title'] ?? '',
+                            'subtitle' => $feature['description'] ?? ''
                         );
-                    }, $project_fields['benefits']) : []
+                }, $project_fields['processes']) : []
             ),
-            'audience_section' => array(
-                'label' => $project_fields['audience_label'],
-                'title' => $project_fields['audience_title'],
-                'subtitle' => $project_fields['audience_subtitle']
-            ),
-            'registration_terms_section' => array(
-                'label' => $project_fields['terms_label'],
-                'title' => $project_fields['terms_title'],
-                'image' => $project_fields['terms_image'],
-                'registration_terms' => !empty($project_fields['terms']) ?
+            'challenge_section' => array(
+                'title' => $project_fields['challenge_title'],
+                'description' => $project_fields['challenge_description'],
+                'first_image' => $project_fields['challenge_first_image'],
+                'second_image' => $project_fields['challenge_second_image'],
+                'second_title' => $project_fields['challenge_second_title'],
+                'points' => !empty($project_fields['challenge_points']) ?
                     array_map(function ($feature) {
                         return array(
-                            'title' => $feature['text'] ?? ''
+                            'title' => $feature['title'] ?? ''
                         );
-                    }, $project_fields['terms']) : []
+                }, $project_fields['points']) : [],
+            ),
+            'installations_section' => array(
+                'title' => $project_fields['installations_title'],
+                'subtitle' => $project_fields['installations_subtitle'],
+                'installations' => !empty($project_fields['installations']) ?
+                    array_map(function ($feature) {
+                        return array(
+                            'title' => $feature['title'] ?? '',
+                            'description' => $feature['description'] ?? '',
+                        );
+                }, $project_fields['installations']) : []
+            ),
+            'results_section' => array(
+                'title' => $project_fields['results_title'],
+                'subtitle' => $project_fields['results_subtitle'],
+                'feedback_title' => $project_fields['feedback_title'],
+                'feedback_description' => $project_fields['feedback_description'],
+                'feedback_person_title' => $project_fields['feedback_person_title'],
+                'feedback_person_position' => $project_fields['feedback_person_position'],
+                'feedback_person_image' => $project_fields['feedback_person_image'],
             ),
         ),
     );
