@@ -244,7 +244,7 @@ function qounam_get_service_details($request)
             'includes_section' => array(
                 'title' => $service_fields['title'],
                 'subtitle' => $service_fields['subtitle'],
-                'big_image' => $service_fields['Big_image'],
+                'big_image' => $service_fields['Big_Image'],
                 'small_image' => $service_fields['small_image'],
                 'points' => !empty($service_fields['points']) ?
                     array_map(function ($feature) {
