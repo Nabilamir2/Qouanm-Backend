@@ -258,6 +258,7 @@ function qounam_get_single_blog($request) {
                 'slug' => $post->post_name,
                 'thumbnail' => get_the_post_thumbnail_url(get_the_ID(), 'medium'),
                 'date' => get_the_date('d M Y'),
+                'duration' => get_field('duration'),
                 'permalink' => get_permalink()
             );
         }

@@ -22,6 +22,7 @@ define('QOUNAM_API_URL', plugin_dir_url(__FILE__));
 // require_once QOUNAM_API_PATH . 'includes/verification.php';
 require_once QOUNAM_API_PATH . 'includes/menu-api.php';
 require_once QOUNAM_API_PATH . 'includes/about-page-api.php';
+require_once QOUNAM_API_PATH . 'includes/factory-page-api.php';
 require_once QOUNAM_API_PATH . 'includes/faq-api.php';
 require_once QOUNAM_API_PATH . 'includes/contact-form-api.php';
 require_once QOUNAM_API_PATH . 'includes/services-api.php';
