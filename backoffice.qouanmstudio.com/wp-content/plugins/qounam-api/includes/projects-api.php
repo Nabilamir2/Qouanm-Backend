@@ -281,6 +281,7 @@ function qounam_get_project_details($request)
             'title' => html_entity_decode(get_the_title($project_id)) ?? '',
             'slug' => get_post_field( 'post_name', $project_id),
             'location' => get_field('location', $project_id),
+            'year' => get_field('year', $project_id),
             'cover_image' => get_field('cover_image', $project_id),
             'logo' => get_field('logo', $project_id),
             'excerpt' => get_the_excerpt($project_id) ?? '',

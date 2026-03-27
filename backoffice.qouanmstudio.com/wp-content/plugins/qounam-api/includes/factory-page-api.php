@@ -46,7 +46,8 @@ function qounam_get_factory() {
             'label' => $page['label'] ?? '',
             'title' => $page['title'] ?? '',
             'subtitle' => $page['description'] ?? '',
-            'image' => $page['image'] ?? '',
+            // 'image' => $page['image'] ?? '',
+            'video' => $page['video'] ?? '',
             'numbers' => !empty($page['numbers']) ? 
                 array_map(function($number) {
                     return array(
